@@ -1,0 +1,146 @@
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ComplaintStep1Schema } from "../lib/validation.ts";
+import { ChevronLeft, ArrowRight, Sparkles, HelpCircle } from "lucide-react";
+import { z } from "zod";
+
+type Step1Inputs = z.infer<typeof ComplaintStep1Schema>;
+
+interface Step1Props {
+  initialValues: Partial<Step1Inputs>;
+  onSuccess: (data: Step1Inputs) => void;
+  onGoBack: () => void;
+}
+
+export const FileComplaintStep1: React.FC<Step1Props> = ({
+  initialValues,
+  onSuccess,
+  onGoBack
+}) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<Step1Inputs>({
+    resolver: zodResolver(ComplaintStep1Schema),
+    defaultValues: {
+      title: initialValues.title || "",
+      description: initialValues.description || "",
+      category: initialValues.category || "ROADS",
+      priority: initialValues.priority || "MEDIUM"
+    }
+  });
+
+  const onSubmit = (data: Step1Inputs) => {
+    onSuccess(data);
+  };
+
+  return (
+    <div className="p-4 max-w-md mx-auto">
+      <div className="flex items-center justify-between mb-6">
+        <button onClick={onGoBack} className="p-1 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">
+          <ChevronLeft size={24} className="text-gray-600" />
+        </button>
+        <h1 className="text-lg font-bold">File Complaint</h1>
+        <span className="text-xs font-bold text-gray-400">Step 1/2</span>
+      </div>
+
+      <div className="w-full h-1 bg-gray-100 rounded-full mb-8 overflow-hidden">
+        <div className="w-1/2 h-full bg-emerald-500 transition-all duration-300"></div>
+      </div>
+
+      <h2 className="text-xl font-bold mb-2">Describe the Issue</h2>
+      <p className="text-sm text-gray-500 mb-6">
+        Provide detail about the civic problem. Gemini AI will analyze your description to map routing, department, and priority automatically upon submission.
+      </p>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Title */}
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1">Grievance Title</label>
+          <input
+            type="text"
+            placeholder="e.g. Broken Water Pipeline on 3rd Street"
+            className={`w-full px-4 py-3 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all ${
+              errors.title ? "border-red-300 animate-shake" : "border-gray-100"
+            }`}
+            {...register("title")}
+          />
+          {errors.title && (
+            <p className="text-xs text-red-500 font-medium pl-1 animate-fadeIn">{errors.title.message}</p>
+          )}
+        </div>
+
+        {/* Description */}
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1">Detailed Description</label>
+          <textarea
+            rows={5}
+            placeholder="Large pothole on Anna Salai Road near the metro station. It is blocking the path, gathering water, and dangerous for two-wheelers."
+            className={`w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none transition-all ${
+              errors.description ? "border-red-300 animate-shake" : "border-gray-100"
+            }`}
+            {...register("description")}
+          />
+          {errors.description && (
+            <p className="text-xs text-red-500 font-medium pl-1 animate-fadeIn">{errors.description.message}</p>
+          )}
+        </div>
+
+        {/* Category Selection */}
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1">Category Select</label>
+          <select
+            className={`w-full px-4 py-3 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 border-gray-100 transition-all text-sm font-semibold`}
+            {...register("category")}
+          >
+            <option value="ROADS">Roads & Footpaths</option>
+            <option value="SANITATION">Sanitation & Garbage</option>
+            <option value="WATER_SUPPLY">Water Supply</option>
+            <option value="ELECTRICITY">Electricity & Power Danger</option>
+            <option value="OTHERS">Others / Misc</option>
+          </select>
+          {errors.category && (
+            <p className="text-xs text-red-500 font-medium pl-1 animate-fadeIn">{errors.category.message}</p>
+          )}
+        </div>
+
+        {/* Priority Selection */}
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1 font-sans">Self-declared Priority</label>
+          <select
+            className={`w-full px-4 py-3 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 border-gray-100 transition-all text-sm font-semibold`}
+            {...register("priority")}
+          >
+            <option value="LOW">Low - Normal Repair</option>
+            <option value="MEDIUM">Medium - Expedited</option>
+            <option value="HIGH">High - Urgent Hazard</option>
+            <option value="CRITICAL">Critical - Extreme Danger</option>
+          </select>
+          {errors.priority && (
+            <p className="text-xs text-red-500 font-medium pl-1 animate-fadeIn">{errors.priority.message}</p>
+          )}
+        </div>
+
+        {/* AI Insight Acknowledgment Note */}
+        <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 flex items-start gap-3 text-emerald-800">
+          <Sparkles className="text-emerald-500 shrink-0 mt-0.5" size={16} />
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5">Automated Analysis Enabled</p>
+            <p className="text-[10px] font-semibold leading-relaxed text-emerald-600">
+              Our Gemini server processing matches keyword indices against historic departmental databases to schedule dispatch and assign zones.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-4 rounded-full flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 transition-transform"
+        >
+          Next: Location & Media <ArrowRight size={20} />
+        </button>
+      </form>
+    </div>
+  );
+};

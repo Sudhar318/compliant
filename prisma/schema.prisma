@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id               String          @id @default(uuid())
+  name             String
+  phone            String          @unique
+  email            String?         @unique
+  passwordHash     String
+  role             String          // "CITIZEN" | "OFFICER" | "ADMIN"
+  ward             String?
+  district         String?
+  aadhaarVerified  Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  complaints       Complaint[]     @relation("CitizenComplaints")
+  assignments      Complaint[]     @relation("OfficerAssignments")
+  feedback         Feedback[]
+  notifications    Notification[]
+  officerProfile   Officer?
+  statusUpdates    StatusUpdate[]
+}
+
+model Complaint {
+  id                        String           @id @default(uuid())
+  trackingId                String           @unique // Format: TN-XXXXX
+  title                     String
+  description               String
+  category                  String           // "ROADS" | "SANITATION" | "WATER" | "ELECTRICITY" | "HEALTH" | "TELECOM" | "SAFETY" | "OTHER"
+  priority                  String           // "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"
+  status                    String           @default("OPEN") // "OPEN" | "PENDING" | "IN_PROGRESS" | "RESOLVED" | "CLOSED" | "ESCALATED"
+  sentiment                 String?          // Gemini
+  aiSummary                 String?          // Gemini
+  estimatedResolutionHours  Int?
+  department                String?
+  latitude                  Float?
+  longitude                 Float?
+  address                   String?
+  ward                      String?
+  district                  String?
+  resolvedAt                DateTime?
+  createdAt                 DateTime         @default(now())
+  updatedAt                 DateTime         @updatedAt
+
+  citizenId                 String
+  citizen                   User             @relation("CitizenComplaints", fields: [citizenId], references: [id])
+  assignedOfficerId         String?
+  assignedOfficer           User?            @relation("OfficerAssignments", fields: [assignedOfficerId], references: [id])
+
+  media                     ComplaintMedia[]
+  statusUpdates             StatusUpdate[]
+  feedback                  Feedback?
+}
+
+model ComplaintMedia {
+  id          String   @id @default(uuid())
+  complaintId String
+  complaint   Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  type        String   // "PHOTO" | "VIDEO" | "AUDIO"
+  url         String
+  publicId    String
+  createdAt   DateTime @default(now())
+}
+
+model StatusUpdate {
+  id          String    @id @default(uuid())
+  complaintId String
+  complaint   Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  status      String    // Same as Complaint.status
+  note        String?
+  updatedById String
+  updatedBy   User      @relation(fields: [updatedById], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
+model Feedback {
+  id          String    @id @default(uuid())
+  complaintId String    @unique
+  complaint   Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  citizenId   String
+  citizen     User      @relation(fields: [citizenId], references: [id])
+  rating      Int       // 1 - 5
+  tags        String    // Comma-separated tags, e.g., "Fast Response, Quality Fix"
+  comment     String?
+  createdAt   DateTime  @default(now())
+}
+
+model Notification {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String    // "STATUS_UPDATE" | "ASSIGNMENT" | "ALERT" | "SYSTEM"
+  title       String
+  message     String
+  read        Boolean   @default(false)
+  complaintId String?
+  createdAt   DateTime  @default(now())
+}
+
+model Officer {
+  id                String  @id @default(uuid())
+  userId            String  @unique
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department        String
+  ward              String
+  district          String
+  activeAssignments Int     @default(0)
+  resolvedCount     Int     @default(0)
+}
+
+model RevokedToken {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model OtpCode {
+  phone     String   @id
+  code      String
+  expiresAt DateTime
+}
+

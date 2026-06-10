@@ -1,0 +1,16 @@
+{
+  "name": "SmartTrack TN",
+  "description": "AI-powered civic complaint resolution platform for Tamil Nadu, connecting citizens with authorities for faster grievance redressal.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "AI-powered categorization",
+    "Real-time tracking",
+    "Civic dashboard",
+    "Multi-media evidence support",
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
