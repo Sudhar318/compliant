@@ -16,15 +16,11 @@ export class ApiError extends Error {
 
 const BASE_URL = ((import.meta as any).env.VITE_API_URL || "").replace(/\/$/, "");
 
-function getApiUrl(endpoint: string) {
-  if (!BASE_URL && Capacitor.isNativePlatform()) {
-    throw new ApiError(
-      "Mobile backend URL is missing. Set VITE_API_URL to your deployed API server before building the APK.",
-      0,
-      "MOBILE_API_URL_MISSING"
-    );
-  }
+function isLocalNativeMode() {
+  return !BASE_URL && Capacitor.isNativePlatform();
+}
 
+function getApiUrl(endpoint: string) {
   return `${BASE_URL}${endpoint}`;
 }
 
@@ -80,6 +76,11 @@ export async function apiClient(
   options: RequestInit = {},
   isRetry = false
 ): Promise<any> {
+  if (isLocalNativeMode()) {
+    const { handleLocalNativeRequest } = await import("./localNativeApi.ts");
+    return handleLocalNativeRequest(endpoint, options);
+  }
+
   const url = getApiUrl(endpoint);
   
   const headers = new Headers(options.headers || {});

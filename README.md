@@ -81,7 +81,7 @@ GEMINI_API_KEY="YOUR_ACTUAL_GEMINI_API_KEY"  # Optional: logs fallbacks automati
 VITE_API_URL="https://your-deployed-api.example.com" # Required for Capacitor/APK builds
 ```
 
-For Android/Capacitor builds, `VITE_API_URL` must point to the deployed Node/Express backend that serves the `/api` routes. The APK only bundles the React frontend; it cannot run the Express server locally on the phone.
+For production Android/Capacitor builds, `VITE_API_URL` must point to the deployed Node/Express backend that serves the `/api` routes. The APK only bundles the React frontend; it cannot run the Express server locally on the phone. If `VITE_API_URL` is omitted, the APK falls back to local demo storage so registration/login can be tested on-device without a deployed backend.
 
 ### 2. Install Workspace Dependencies
 ```bash
