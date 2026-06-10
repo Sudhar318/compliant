@@ -1,3 +1,5 @@
+import { Capacitor } from "@capacitor/core";
+
 export class ApiError extends Error {
   code?: string;
   details?: any;
@@ -12,7 +14,28 @@ export class ApiError extends Error {
   }
 }
 
-const BASE_URL = (import.meta as any).env.VITE_API_URL || "";
+const BASE_URL = ((import.meta as any).env.VITE_API_URL || "").replace(/\/$/, "");
+
+function getApiUrl(endpoint: string) {
+  if (!BASE_URL && Capacitor.isNativePlatform()) {
+    throw new ApiError(
+      "Mobile backend URL is missing. Set VITE_API_URL to your deployed API server before building the APK.",
+      0,
+      "MOBILE_API_URL_MISSING"
+    );
+  }
+
+  return `${BASE_URL}${endpoint}`;
+}
+
+async function parseApiResponse(response: Response) {
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) {
+    throw new ApiError("Invalid API response. Check that VITE_API_URL points to the backend server.", response.status, "INVALID_API_RESPONSE");
+  }
+
+  return response.json();
+}
 
 let _token: string | null = null;
 let _onTokenRefreshed: ((token: string | null) => void) | null = null;
@@ -57,7 +80,7 @@ export async function apiClient(
   options: RequestInit = {},
   isRetry = false
 ): Promise<any> {
-  const url = `${BASE_URL}${endpoint}`;
+  const url = getApiUrl(endpoint);
   
   const headers = new Headers(options.headers || {});
   
@@ -73,6 +96,7 @@ export async function apiClient(
   }
   
   const config = {
+    credentials: "include" as RequestCredentials,
     ...options,
     headers,
   };
@@ -87,10 +111,10 @@ export async function apiClient(
           fetch(url, { ...options, headers })
             .then(async (res) => {
               if (!res.ok) {
-                const errData = await res.json().catch(() => ({}));
+                const errData = await parseApiResponse(res).catch(() => ({}));
                 reject(new ApiError(errData.error?.message || "Request failed", res.status, errData.error?.code, errData.error?.details));
               } else {
-                const successData = await res.json().catch(() => ({}));
+                const successData = await parseApiResponse(res);
                 resolve(successData.data);
               }
             })
@@ -101,16 +125,17 @@ export async function apiClient(
     
     isRefreshing = true;
     try {
-      const refreshRes = await fetch(`${BASE_URL}/api/auth/refresh`, {
+      const refreshRes = await fetch(getApiUrl("/api/auth/refresh"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
       });
       
       if (!refreshRes.ok) {
         throw new Error("Refresh token request failed");
       }
       
-      const refreshPayload = await refreshRes.json();
+      const refreshPayload = await parseApiResponse(refreshRes);
       const newToken = refreshPayload.data.accessToken;
       
       tokenStore.setToken(newToken);
@@ -120,7 +145,7 @@ export async function apiClient(
       headers.set("Authorization", `Bearer ${newToken}`);
       const retryResponse = await fetch(url, { ...options, headers });
       if (!retryResponse.ok) {
-        const errData = await retryResponse.json().catch(() => ({}));
+        const errData = await parseApiResponse(retryResponse).catch(() => ({}));
         throw new ApiError(
           errData.error?.message || "Request failed after refresh",
           retryResponse.status,
@@ -128,7 +153,7 @@ export async function apiClient(
           errData.error?.details
         );
       }
-      const successData = await retryResponse.json().catch(() => ({}));
+      const successData = await parseApiResponse(retryResponse);
       return successData.data;
     } catch (refreshErr) {
       isRefreshing = false;
@@ -139,7 +164,7 @@ export async function apiClient(
   }
   
   if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
+    const errData = await parseApiResponse(response).catch(() => ({}));
     throw new ApiError(
       errData.error?.message || "Network request failed",
       response.status,
@@ -148,6 +173,6 @@ export async function apiClient(
     );
   }
   
-  const successData = await response.json().catch(() => ({}));
+  const successData = await parseApiResponse(response);
   return successData.data;
 }

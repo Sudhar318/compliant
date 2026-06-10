@@ -36,10 +36,10 @@ export async function logout(): Promise<{ message: string }> {
   });
 }
 
-export async function refresh(token: string): Promise<{ accessToken: string; refreshToken: string }> {
+export async function refresh(token?: string): Promise<{ accessToken: string; refreshToken: string }> {
   return apiClient("/api/auth/refresh", {
     method: "POST",
-    body: JSON.stringify({ refreshToken: token }),
+    body: token ? JSON.stringify({ refreshToken: token }) : undefined,
   });
 }
 

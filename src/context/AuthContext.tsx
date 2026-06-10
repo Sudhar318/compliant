@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import { login as apiLogin, logout as apiLogout, getMe } from "../api/auth.ts";
+import { login as apiLogin, logout as apiLogout, getMe, refresh as apiRefresh } from "../api/auth.ts";
 import { tokenStore } from "../api/client.ts";
 
 export interface UserInfo {
@@ -37,20 +37,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const silentRefresh = async () => {
     try {
-      const BASE_URL = (import.meta as any).env.VITE_API_URL || "";
-      const res = await fetch(`${BASE_URL}/api/auth/refresh`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (res.ok) {
-        const payload = await res.json();
-        const token = payload.data.accessToken;
-        updateToken(token);
-        
-        const meRes = await getMe();
-        if (meRes && meRes.user) {
-          setUser(meRes.user as UserInfo);
-        }
+      const payload = await apiRefresh();
+      updateToken(payload.accessToken);
+
+      const meRes = await getMe();
+      if (meRes && meRes.user) {
+        setUser(meRes.user as UserInfo);
       }
     } catch (e) {
       console.error("Silent refresh failed:", e);

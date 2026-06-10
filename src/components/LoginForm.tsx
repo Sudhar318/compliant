@@ -35,14 +35,29 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     }
   });
 
+  const normalizeIdentifier = (identifier: string) => {
+    const value = identifier.trim();
+    if (value.includes("@")) {
+      return value;
+    }
+
+    const digits = value.replace(/\D/g, "");
+    if (digits.length === 10 && /^[6-9]/.test(digits)) {
+      return `+91${digits}`;
+    }
+
+    return value;
+  };
+
   const onSubmit = async (data: LoginFormInputs) => {
     setApiError(null);
     try {
+      const identifier = normalizeIdentifier(data.identifier);
       const payload: any = { password: data.password };
-      if (data.identifier.includes("@")) {
-        payload.email = data.identifier;
+      if (identifier.includes("@")) {
+        payload.email = identifier;
       } else {
-        payload.phone = data.identifier;
+        payload.phone = identifier;
       }
       await login(payload);
       onSuccess();

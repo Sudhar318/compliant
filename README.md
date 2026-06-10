@@ -78,7 +78,10 @@ DATABASE_URL="file:./dev.db"
 JWT_SECRET="smarttrack_jwt_super_secret_key_123_456_789"
 JWT_REFRESH_SECRET="smarttrack_jwt_refresh_super_secret_key_123_456_789"
 GEMINI_API_KEY="YOUR_ACTUAL_GEMINI_API_KEY"  # Optional: logs fallbacks automatically if blank
+VITE_API_URL="https://your-deployed-api.example.com" # Required for Capacitor/APK builds
 ```
+
+For Android/Capacitor builds, `VITE_API_URL` must point to the deployed Node/Express backend that serves the `/api` routes. The APK only bundles the React frontend; it cannot run the Express server locally on the phone.
 
 ### 2. Install Workspace Dependencies
 ```bash

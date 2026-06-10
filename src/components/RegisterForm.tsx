@@ -35,13 +35,17 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     }
   });
 
+  const normalizePhone = (phone: string) => phone.trim();
+
   const onSubmit = async (data: RegisterFormInputs) => {
     setApiError(null);
     try {
+      const phone = normalizePhone(data.phone);
+
       // 1. Register candidate user details
       await apiRegister({
         name: data.name,
-        phone: data.phone,
+        phone,
         email: data.email || undefined,
         password: data.password,
         ward: data.ward,
@@ -49,9 +53,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       });
 
       // 2. Trigger verification OTP code dispatch
-      const res = await sendOtp(data.phone);
+      const res = await sendOtp(phone);
       
-      onSuccess(data.phone, res.devNote);
+      onSuccess(phone, res?.devNote);
     } catch (err: any) {
       setApiError(err.message || "Failed to complete account registration. Verify details.");
     }
