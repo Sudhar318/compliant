@@ -1,0 +1,6 @@
+{
+  "appId": "com.smarttrack.tn",
+  "appName": "SmartTrack TN",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
