@@ -86,7 +86,7 @@ export const ComplaintDetailView: React.FC<ComplaintDetailViewProps> = ({
   const isResolved = ["RESOLVED", "CLOSED"].includes(complaint.status);
 
   return (
-    <div className="pb-24 max-w-md mx-auto bg-slate-50 min-h-screen">
+    <div className="mx-auto min-h-screen w-full max-w-md bg-slate-50 pb-32">
       {/* Sticky top detailing header */}
       <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex items-center justify-between z-40 shadow-sm">
         <div className="flex items-center gap-4">
@@ -229,7 +229,7 @@ export const ComplaintDetailView: React.FC<ComplaintDetailViewProps> = ({
               <div className="w-10 h-10 rounded-xl bg-slate-50 border border-gray-100 flex items-center justify-center text-emerald-500">
                 <MapPin size={22} />
               </div>
-              <div className="minimal-w-0">
+              <div className="min-w-0">
                 <h4 className="text-sm font-black text-gray-900 truncate">Confirmed Address</h4>
                 <p className="text-[10px] text-gray-500 font-bold truncate">{complaint.address || "GPS-bound reports only"}</p>
               </div>

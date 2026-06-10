@@ -74,7 +74,7 @@ export const ComplaintsListView: React.FC<ComplaintsListViewProps> = ({
   }, [debouncedSearch, filterStatus, page]);
 
   return (
-    <div className="pb-24 max-w-md mx-auto bg-slate-50 min-h-screen">
+    <div className="mx-auto min-h-screen w-full max-w-md bg-slate-50 pb-32">
       {/* Header filter sticky bank */}
       <div className="sticky top-0 bg-white border-b border-gray-100 p-4 z-40 shadow-sm">
         <div className="flex items-center gap-3 mb-4">

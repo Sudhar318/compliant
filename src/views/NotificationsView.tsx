@@ -43,7 +43,7 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
   };
 
   return (
-    <div className="pb-24 max-w-md mx-auto bg-slate-50 min-h-screen">
+    <div className="mx-auto min-h-screen w-full max-w-md bg-slate-50 pb-32">
       <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex items-center justify-between z-40 shadow-sm">
         <div className="flex items-center gap-3">
           <button onClick={onGoBack} className="p-1 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">

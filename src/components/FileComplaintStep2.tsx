@@ -117,7 +117,7 @@ export const FileComplaintStep2: React.FC<Step2Props> = ({
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto">
+    <div className="mx-auto w-full max-w-md px-4 pt-4 pb-36 sm:px-6">
       <div className="flex items-center justify-between mb-6">
         <button onClick={onGoBack} className="p-1 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">
           <ChevronLeft size={24} className="text-gray-600" />
@@ -179,7 +179,7 @@ export const FileComplaintStep2: React.FC<Step2Props> = ({
             <input
               type="text"
               placeholder="e.g. 54, Cathedral Road, Anna Salai"
-              className={`w-full px-4 py-3 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all ${
+              className={`w-full rounded-2xl border bg-gray-50 px-4 py-3 text-base outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-emerald-500 ${
                 errors.address ? "border-red-300 animate-shake" : "border-gray-100"
               }`}
               {...register("address")}
@@ -275,7 +275,7 @@ export const FileComplaintStep2: React.FC<Step2Props> = ({
           type="submit"
           id="btn-complaint-submit"
           disabled={isSubmittingAll}
-          className="w-full h-12 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-full flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all disabled:bg-gray-200 disabled:shadow-none"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-emerald-500 font-bold text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-600 active:scale-95 disabled:bg-gray-200 disabled:shadow-none"
         >
           {isSubmittingAll ? (
             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

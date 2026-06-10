@@ -151,7 +151,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-gray-900 overflow-x-hidden relative">
+    <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 font-sans text-gray-900 relative">
       <AnimatePresence mode="wait">
         {/* LANDING SCREEN */}
         {view === "landing" && (
@@ -399,36 +399,36 @@ const TabBar: React.FC<TabBarProps> = ({ active, onNavigate }) => {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around py-3 pb-8 px-4 z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.02)] max-w-md mx-auto rounded-t-3xl">
+    <div className="fixed bottom-0 left-1/2 z-50 flex min-h-[84px] w-[calc(100%-1rem)] max-w-md -translate-x-1/2 items-end justify-around rounded-t-3xl border border-b-0 border-gray-100 bg-white px-2 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(15,23,42,0.08)]">
       <button
         onClick={() => onNavigate("dashboard")}
-        className={cn("flex flex-col items-center gap-1 transition-colors", active === "dashboard" ? "text-emerald-500" : "text-gray-400")}
+        className={cn("flex min-w-0 flex-1 flex-col items-center gap-1 transition-colors", active === "dashboard" ? "text-emerald-500" : "text-gray-400")}
       >
         <Smartphone size={22} />
-        <span className="text-[9px] font-black uppercase tracking-wider">Home</span>
+        <span className="max-w-full truncate text-[9px] font-black uppercase tracking-wider">Home</span>
       </button>
       <button
         onClick={() => onNavigate("file-complaint")}
-        className={cn("flex flex-col items-center gap-1 transition-colors", active === "file" ? "text-emerald-500" : "text-gray-400")}
+        className={cn("flex min-w-0 flex-1 flex-col items-center gap-1 transition-colors", active === "file" ? "text-emerald-500" : "text-gray-400")}
       >
-        <div className="bg-emerald-500 text-white rounded-full p-2.5 -mt-8 border-4 border-white shadow-lg active:scale-95 transition-transform duration-200">
+        <div className="-mt-7 rounded-full border-4 border-white bg-emerald-500 p-2.5 text-white shadow-lg transition-transform duration-200 active:scale-95">
           <Plus size={22} />
         </div>
-        <span className="text-[9px] font-black uppercase tracking-wider mt-0.5">File Report</span>
+        <span className="mt-0.5 max-w-full truncate text-[9px] font-black uppercase tracking-wider">File Report</span>
       </button>
       <button
         onClick={() => onNavigate("complaints")}
-        className={cn("flex flex-col items-center gap-1 transition-colors", active === "complaints" ? "text-emerald-500" : "text-gray-400")}
+        className={cn("flex min-w-0 flex-1 flex-col items-center gap-1 transition-colors", active === "complaints" ? "text-emerald-500" : "text-gray-400")}
       >
         <ClipboardList size={22} />
-        <span className="text-[9px] font-black uppercase tracking-wider">My Track</span>
+        <span className="max-w-full truncate text-[9px] font-black uppercase tracking-wider">My Track</span>
       </button>
       <button
         onClick={() => onNavigate("profile")}
-        className={cn("flex flex-col items-center gap-1 transition-colors", active === "profile" ? "text-emerald-500" : "text-gray-400")}
+        className={cn("flex min-w-0 flex-1 flex-col items-center gap-1 transition-colors", active === "profile" ? "text-emerald-500" : "text-gray-400")}
       >
         <User size={22} />
-        <span className="text-[9px] font-black uppercase tracking-wider">Profile</span>
+        <span className="max-w-full truncate text-[9px] font-black uppercase tracking-wider">Profile</span>
       </button>
     </div>
   );

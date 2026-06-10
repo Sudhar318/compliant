@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth.ts";
 import { listComplaints } from "../api/complaints.ts";
 import { listNotifications } from "../api/notifications.ts";
-import { Bell, Home, Plus, ClipboardList, Clock, CheckCircle2, Activity, Database, Smartphone, ShieldCheck, HelpCircle } from "lucide-react";
+import { Bell, ClipboardList, Clock, CheckCircle2, Activity, Database, Smartphone, ShieldCheck } from "lucide-react";
 import { cn } from "../lib/utils.ts";
 
 interface DashboardViewProps {
@@ -63,7 +63,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   }, []);
 
   return (
-    <div className="pb-24 max-w-md mx-auto bg-slate-50 min-h-screen">
+    <div className="mx-auto min-h-screen w-full max-w-md bg-slate-50 pb-32">
       {/* Header */}
       <div className="sticky top-0 bg-white border-b border-gray-100 p-4 py-4 flex items-center justify-between z-40 shadow-sm">
         <div className="flex items-center gap-3">
@@ -159,7 +159,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     })}>
                       <Icon size={20} />
                     </div>
-                    <div className="flex-grow minimal-w-0">
+                    <div className="min-w-0 flex-grow">
                       <h4 className="text-xs font-black text-gray-900 truncate">{item.title}</h4>
                       <p className="text-[10px] text-gray-400 font-bold truncate">{item.desc}</p>
                     </div>

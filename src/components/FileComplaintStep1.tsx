@@ -2,7 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ComplaintStep1Schema } from "../lib/validation.ts";
-import { ChevronLeft, ArrowRight, Sparkles, HelpCircle } from "lucide-react";
+import { ChevronLeft, ArrowRight, Sparkles } from "lucide-react";
 import { z } from "zod";
 
 type Step1Inputs = z.infer<typeof ComplaintStep1Schema>;
@@ -37,7 +37,7 @@ export const FileComplaintStep1: React.FC<Step1Props> = ({
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto">
+    <div className="mx-auto w-full max-w-md px-4 pt-4 pb-36 sm:px-6">
       <div className="flex items-center justify-between mb-6">
         <button onClick={onGoBack} className="p-1 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">
           <ChevronLeft size={24} className="text-gray-600" />
@@ -62,7 +62,7 @@ export const FileComplaintStep1: React.FC<Step1Props> = ({
           <input
             type="text"
             placeholder="e.g. Broken Water Pipeline on 3rd Street"
-            className={`w-full px-4 py-3 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all ${
+            className={`w-full rounded-2xl border bg-gray-50 px-4 py-3 text-base outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-emerald-500 ${
               errors.title ? "border-red-300 animate-shake" : "border-gray-100"
             }`}
             {...register("title")}
@@ -78,7 +78,7 @@ export const FileComplaintStep1: React.FC<Step1Props> = ({
           <textarea
             rows={5}
             placeholder="Large pothole on Anna Salai Road near the metro station. It is blocking the path, gathering water, and dangerous for two-wheelers."
-            className={`w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none transition-all ${
+            className={`w-full resize-none rounded-2xl border bg-gray-50 p-4 text-base outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-emerald-500 ${
               errors.description ? "border-red-300 animate-shake" : "border-gray-100"
             }`}
             {...register("description")}
@@ -92,7 +92,7 @@ export const FileComplaintStep1: React.FC<Step1Props> = ({
         <div className="space-y-1">
           <label className="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1">Category Select</label>
           <select
-            className={`w-full px-4 py-3 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 border-gray-100 transition-all text-sm font-semibold`}
+            className="w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-base font-semibold outline-none transition-all focus:ring-2 focus:ring-emerald-500"
             {...register("category")}
           >
             <option value="ROADS">Roads & Footpaths</option>
@@ -110,7 +110,7 @@ export const FileComplaintStep1: React.FC<Step1Props> = ({
         <div className="space-y-1">
           <label className="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1 font-sans">Self-declared Priority</label>
           <select
-            className={`w-full px-4 py-3 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 border-gray-100 transition-all text-sm font-semibold`}
+            className="w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-base font-semibold outline-none transition-all focus:ring-2 focus:ring-emerald-500"
             {...register("priority")}
           >
             <option value="LOW">Low - Normal Repair</option>
@@ -134,12 +134,14 @@ export const FileComplaintStep1: React.FC<Step1Props> = ({
           </div>
         </div>
 
-        <button
-          type="submit"
-          className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-4 rounded-full flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 transition-transform"
-        >
-          Next: Location & Media <ArrowRight size={20} />
-        </button>
+        <div className="pt-2">
+          <button
+            type="submit"
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-500 py-4 font-semibold text-white shadow-lg shadow-emerald-500/20 transition-transform hover:bg-emerald-600 active:scale-95"
+          >
+            Next: Location & Media <ArrowRight size={20} />
+          </button>
+        </div>
       </form>
     </div>
   );

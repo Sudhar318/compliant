@@ -105,7 +105,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onGoBack }) => {
   };
 
   return (
-    <div className="pb-24 max-w-md mx-auto bg-slate-50 min-h-screen">
+    <div className="mx-auto min-h-screen w-full max-w-md bg-slate-50 pb-32">
       {/* Absolute Stickied Header */}
       <div className="sticky top-0 bg-white border-b border-gray-100 p-4 py-4 flex items-center gap-3 z-40 shadow-sm">
         <button 
@@ -346,23 +346,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onGoBack }) => {
           </div>
 
           {/* Save Profile Button */}
-          <button
-            type="submit"
-            disabled={updating}
-            className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-300 text-white font-bold py-4 rounded-full flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all text-xs uppercase tracking-wider"
-          >
-            {updating ? (
-              <>
-                <RefreshCw size={16} className="animate-spin" />
-                Synchronizing Profile...
-              </>
-            ) : (
-              <>
-                <Save size={16} />
-                Save Changes Securely
-              </>
-            )}
-          </button>
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={updating}
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-500 py-4 text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-600 active:scale-95 disabled:bg-emerald-300"
+            >
+              {updating ? (
+                <>
+                  <RefreshCw size={16} className="animate-spin" />
+                  Synchronizing Profile...
+                </>
+              ) : (
+                <>
+                  <Save size={16} />
+                  Save Changes Securely
+                </>
+              )}
+            </button>
+          </div>
         </form>
       </div>
     </div>
