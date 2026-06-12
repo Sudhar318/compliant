@@ -66,7 +66,7 @@ export async function assignOfficerToComplaint(complaintId: string) {
         where: { id: complaintId },
         data: {
           assignedOfficerId: officerUserId,
-          status: "PENDING",
+          status: "ASSIGNED",
         },
       }),
       prisma.officer.update({
@@ -78,7 +78,7 @@ export async function assignOfficerToComplaint(complaintId: string) {
       prisma.statusUpdate.create({
         data: {
           complaintId,
-          status: "PENDING",
+          status: "ASSIGNED",
           note: `Automatically assigned to Officer ${assignedOfficerRelation.user.name} of ${department} based on ward/load routing.`,
           updatedById: officerUserId, // self
         },

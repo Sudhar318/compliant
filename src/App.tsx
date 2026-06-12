@@ -20,6 +20,7 @@ import { ProfileView } from "./views/ProfileView.tsx";
 
 import { Smartphone, ShieldCheck, ArrowRight, X, Plus, ClipboardList, User } from "lucide-react";
 import { cn } from "./lib/utils.ts";
+import { getCategoryLabel, getSubcategoryLabel } from "./lib/complaintOptions.ts";
 
 type View =
   | "landing"
@@ -94,11 +95,16 @@ export default function App() {
         title: step1Fields.title,
         description: step1Fields.description,
         category: step1Fields.category,
+        subcategory: step1Fields.subcategory,
         priority: step1Fields.priority,
         address: data.address,
         latitude: data.latitude,
         longitude: data.longitude
       });
+
+      if (!complaint?.id) {
+        throw new Error("Complaint was created but the server did not return a complaint ID.");
+      }
 
       // 2. Concurrently upload any attached evidence
       if (data.files && data.files.length > 0) {
@@ -304,7 +310,7 @@ export default function App() {
               <div className="bg-emerald-50/50 rounded-3xl p-6 border border-emerald-150 text-left">
                 <h3 className="text-xs font-black text-emerald-800 uppercase tracking-wider mb-2">Automated Dispatch Report</h3>
                 <p className="text-[11px] text-emerald-700 leading-relaxed font-semibold">
-                  Action category indices: <span className="font-extrabold">{newlyCreatedComplaint?.category}</span>. Priority tags processed via servers to schedule region {user?.district || "Chennai"}.
+                  Department: <span className="font-extrabold">{getCategoryLabel(newlyCreatedComplaint?.category)}</span>. Subcategory: <span className="font-extrabold">{getSubcategoryLabel(newlyCreatedComplaint?.subcategory)}</span>. Priority tags processed via servers to schedule region {user?.district || "Chennai"}.
                 </p>
               </div>
             </div>

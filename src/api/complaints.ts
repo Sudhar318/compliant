@@ -26,11 +26,24 @@ export interface ComplaintListResponse {
   };
 }
 
+function unwrapComplaint<T>(response: T | { complaint: T }): T {
+  return response && typeof response === "object" && "complaint" in response
+    ? (response as { complaint: T }).complaint
+    : response as T;
+}
+
+function unwrapMedia<T>(response: T | { media: T }): T {
+  return response && typeof response === "object" && "media" in response
+    ? (response as { media: T }).media
+    : response as T;
+}
+
 export async function createComplaint(data: any): Promise<Complaint> {
-  return apiClient("/api/complaints", {
+  const response = await apiClient("/api/complaints", {
     method: "POST",
     body: JSON.stringify(data),
   });
+  return unwrapComplaint<Complaint>(response);
 }
 
 export async function listComplaints(params: {
@@ -54,9 +67,10 @@ export async function listComplaints(params: {
 }
 
 export async function getComplaint(id: string): Promise<ComplaintDetail> {
-  return apiClient(`/api/complaints/${id}`, {
+  const response = await apiClient(`/api/complaints/${id}`, {
     method: "GET",
   });
+  return unwrapComplaint<ComplaintDetail>(response);
 }
 
 export async function updateStatus(
@@ -70,11 +84,12 @@ export async function updateStatus(
 }
 
 export async function uploadMedia(id: string, formData: FormData): Promise<ComplaintMedia> {
-  return apiClient(`/api/complaints/${id}/media`, {
+  const response = await apiClient(`/api/complaints/${id}/media`, {
     method: "POST",
     body: formData,
     // Note: client.ts already handles not setting content-type if the body is FormData
   });
+  return unwrapMedia<ComplaintMedia>(response);
 }
 
 export async function escalate(id: string): Promise<{ complaint: Complaint; statusUpdate: StatusUpdate }> {
@@ -91,7 +106,8 @@ export async function submitFeedback(id: string, data: { rating: number; tags: s
 }
 
 export async function trackPublic(trackingId: string): Promise<ComplaintDetail> {
-  return apiClient(`/api/complaints/track/${trackingId}`, {
+  const response = await apiClient(`/api/complaints/track/${trackingId}`, {
     method: "GET",
   });
+  return unwrapComplaint<ComplaintDetail>(response);
 }

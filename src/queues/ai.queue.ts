@@ -2,6 +2,7 @@ import { analyzeComplaint } from "../services/gemini.service.ts";
 import { assignOfficerToComplaint } from "../services/officer.service.ts";
 import { prisma } from "../config/prisma.ts";
 import { sendNotification } from "../services/notification.service.ts";
+import { normalizeCategoryValue } from "../lib/complaintOptions.ts";
 
 export interface AIJob {
   complaintId: string;
@@ -60,12 +61,13 @@ class AIBackgroundQueue {
 
     // Call Gemini Service for Categorisation
     const analysisResult = await analyzeComplaint(complaint.description, imageUrls);
+    const normalizedCategory = normalizeCategoryValue(analysisResult.category);
 
     // Persist Analysis Results in Database
     await prisma.complaint.update({
       where: { id: complaintId },
       data: {
-        category: analysisResult.category,
+        category: normalizedCategory,
         department: analysisResult.department,
         priority: analysisResult.priority,
         sentiment: analysisResult.sentiment,
@@ -84,7 +86,7 @@ class AIBackgroundQueue {
       userId: complaint.citizenId,
       type: "STATUS_UPDATE",
       title: "Complaint Categorized",
-      message: `Your complaint has been categorized under '${analysisResult.category}' and routed to target departments. Code: ${complaint.trackingId}`,
+      message: `Your complaint has been categorized under '${normalizedCategory}' and routed to target departments. Code: ${complaint.trackingId}`,
       complaintId,
     });
   }

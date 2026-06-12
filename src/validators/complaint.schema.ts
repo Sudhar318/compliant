@@ -1,9 +1,11 @@
 import { z } from "zod";
+import { CATEGORY_VALUES, STATUS_VALUES, SUBCATEGORY_VALUES } from "../lib/complaintOptions.ts";
 
 export const createComplaintSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters long"),
   description: z.string().min(10, "Description must be at least 10 characters long"),
-  category: z.enum(["ROADS", "SANITATION", "WATER", "ELECTRICITY", "HEALTH", "TELECOM", "SAFETY", "OTHER"]).default("OTHER"),
+  category: z.enum(CATEGORY_VALUES).default("ROADS"),
+  subcategory: z.enum(SUBCATEGORY_VALUES).optional().nullable(),
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).default("LOW"),
   latitude: z.number().optional().nullable(),
   longitude: z.number().optional().nullable(),
@@ -13,7 +15,7 @@ export const createComplaintSchema = z.object({
 });
 
 export const updateStatusSchema = z.object({
-  status: z.enum(["OPEN", "PENDING", "IN_PROGRESS", "RESOLVED", "CLOSED", "ESCALATED"]),
+  status: z.enum(STATUS_VALUES),
   note: z.string().max(500, "Note must be under 500 characters").optional(),
 });
 

@@ -25,6 +25,7 @@ import {
   PieChart, Pie, Cell
 } from "recharts";
 import { cn } from "../lib/utils.ts";
+import { COMPLAINT_CATEGORIES, STATUS_VALUES, getCategoryLabel, getStatusLabel, getSubcategoryLabel } from "../lib/complaintOptions.ts";
 
 interface AdminDashboardViewProps {
   onLogout: () => void;
@@ -56,7 +57,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
     phone: "+91",
     email: "",
     password: "",
-    department: "SANITATION",
+    department: "HEALTH",
     wardString: "14",
     district: "Chennai"
   });
@@ -123,7 +124,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
       });
       setActionSuccess("Officer profile registered successfully!");
       setShowAddOfficer(false);
-      setNewOfficer({ name: "", phone: "+91", email: "", password: "", department: "SANITATION", wardString: "14", district: "Chennai" });
+      setNewOfficer({ name: "", phone: "+91", email: "", password: "", department: "HEALTH", wardString: "14", district: "Chennai" });
       const offRes = await listOfficers();
       setOfficers(offRes);
     } catch (err: any) {
@@ -247,10 +248,11 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
             </div>
 
             {/* Bento blocks summary row */}
-            <div className="grid grid-cols-4 gap-6">
+            <div className="grid grid-cols-5 gap-4">
               {[
                 { label: "Total complaints logged", value: summary?.totals.all || 0, icon: FileText, color: "blue" },
                 { label: "Unassigned open tickets", value: summary?.totals.pending || 0, icon: Activity, color: "orange" },
+                { label: "Assigned tickets", value: summary?.totals.assigned || 0, icon: Users, color: "blue" },
                 { label: "Resolved grievances", value: (summary?.totals.resolved || 0) + (summary?.totals.closed || 0), icon: CheckCircle2, color: "emerald" },
                 { label: "Resolution Speed", value: `${summary?.resolutionSpeedAvgHours?.toFixed(1) || "4.5"} hrs`, icon: Clock, color: "purple" }
               ].map((stat, idx) => (
@@ -282,7 +284,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                     <tr className="border-b border-gray-100 text-gray-400 font-black uppercase pb-4">
                       <th className="pb-4">Tracking ID</th>
                       <th className="pb-4">Grievance Subject</th>
-                      <th className="pb-4">Department Category</th>
+                      <th className="pb-4">Department</th>
+                      <th className="pb-4">Subcategory</th>
                       <th className="pb-4">Status</th>
                       <th className="pb-4">Assigned officer</th>
                       <th className="pb-4">Actions</th>
@@ -296,15 +299,16 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                           <p className="font-black text-gray-900 truncate max-w-xs">{comp.title}</p>
                           <p className="text-[10px] text-gray-400">Filed {new Date(comp.createdAt).toLocaleDateString()}</p>
                         </td>
-                        <td className="py-4 font-bold text-gray-600">{comp.category}</td>
+                        <td className="py-4 font-bold text-gray-600">{getCategoryLabel(comp.category)}</td>
+                        <td className="py-4 font-bold text-gray-500">{getSubcategoryLabel(comp.subcategory)}</td>
                         <td className="py-4">
                           <span className={cn("px-2 py-0.5 rounded text-[9px] font-black uppercase", {
-                            'bg-orange-50 text-orange-600': comp.status === 'PENDING',
+                            'bg-orange-50 text-orange-600': ['OPEN', 'PENDING'].includes(comp.status),
                             'bg-blue-50 text-blue-600': ['ASSIGNED', 'IN_PROGRESS'].includes(comp.status),
                             'bg-emerald-50 text-emerald-600': ['RESOLVED', 'CLOSED'].includes(comp.status),
                             'bg-red-50 text-red-600': comp.status === 'ESCALATED',
                           })}>
-                            {comp.status}
+                            {getStatusLabel(comp.status)}
                           </span>
                         </td>
                         <td className="py-4 text-gray-500 font-semibold">
@@ -341,7 +345,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                   <tr className="border-b border-gray-100 text-gray-400 font-black uppercase pb-4">
                     <th className="pb-4">Tracking ID</th>
                     <th className="pb-4">Title</th>
-                    <th className="pb-4">Category</th>
+                    <th className="pb-4">Department</th>
+                    <th className="pb-4">Subcategory</th>
                     <th className="pb-4">Aadhaar verified</th>
                     <th className="pb-4">Status</th>
                     <th className="pb-4">Assigned officer</th>
@@ -356,7 +361,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                         <p className="font-extrabold text-gray-900 truncate max-w-xs">{comp.title}</p>
                         <p className="text-[10px] text-gray-400">{comp.address}</p>
                       </td>
-                      <td className="py-4 font-black">{comp.category}</td>
+                      <td className="py-4 font-black">{getCategoryLabel(comp.category)}</td>
+                      <td className="py-4 font-semibold text-gray-500">{getSubcategoryLabel(comp.subcategory)}</td>
                       <td className="py-4 font-extrabold text-emerald-500">
                         {comp.citizen?.phone ? "✓ Validated" : "✓ SMS Verified"}
                       </td>
@@ -366,12 +372,10 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                           onChange={(e) => handleStatusUpdate(comp.id, e.target.value)}
                           className="bg-gray-50 border border-gray-100 rounded p-1 text-[10px] font-black"
                         >
-                          <option value="PENDING">PENDING</option>
-                          <option value="ASSIGNED">ASSIGNED</option>
-                          <option value="IN_PROGRESS">IN_PROGRESS</option>
-                          <option value="RESOLVED">RESOLVED</option>
-                          <option value="CLOSED">CLOSED</option>
-                          <option value="ESCALATED">ESCALATED</option>
+                          {comp.status === "PENDING" && <option value="PENDING">Pending</option>}
+                          {STATUS_VALUES.map((status) => (
+                            <option key={status} value={status}>{getStatusLabel(status)}</option>
+                          ))}
                         </select>
                       </td>
                       <td className="py-4">
@@ -498,16 +502,16 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
 
             <div className="grid grid-cols-3 gap-6">
               {officers.map((off) => (
-                <div key={off.id} className="bg-white border border-gray-100 p-6 rounded-[32px] shadow-sm flex flex-col justify-between">
+                <div key={off.officerId || off.id} className="bg-white border border-gray-100 p-6 rounded-[32px] shadow-sm flex flex-col justify-between">
                   <div>
                     <span className="bg-emerald-50 text-emerald-650 px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider">
-                      {off.department}
+                      {getCategoryLabel(off.department)}
                     </span>
-                    <h3 className="text-base font-black text-gray-950 mt-3">{off.user?.name}</h3>
+                    <h3 className="text-base font-black text-gray-950 mt-3">{off.name || off.user?.name}</h3>
                     <p className="text-xs text-gray-400 font-medium mt-1">Ward {off.ward} • {off.district}</p>
                   </div>
                   <div className="pt-4 border-t border-gray-50 mt-4 flex justify-between items-center text-xs text-gray-500">
-                    <span className="font-semibold">{off.user?.phone}</span>
+                    <span className="font-semibold">{off.phone || off.user?.phone}</span>
                     <span className="font-extrabold text-emerald-600 text-[10px]">Verified Staff</span>
                   </div>
                 </div>
@@ -537,8 +541,8 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                 >
                   <option value="">-- Choose Staff Officer --</option>
                   {officers.map((off) => (
-                    <option key={off.id} value={off.id}>
-                      {off.user?.name} ({off.department} - Ward {off.ward})
+                    <option key={off.officerId || off.id} value={off.userId || off.id}>
+                      {off.name || off.user?.name} ({getCategoryLabel(off.department)} - Ward {off.ward})
                     </option>
                   ))}
                 </select>
@@ -618,11 +622,9 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                     onChange={(e) => setNewOfficer({ ...newOfficer, department: e.target.value })}
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs outline-none"
                   >
-                    <option value="SANITATION">SANITATION</option>
-                    <option value="ROADS">ROADS</option>
-                    <option value="WATER_SUPPLY">WATER SUPPLY</option>
-                    <option value="ELECTRICITY">ELECTRICITY</option>
-                    <option value="OTHERS">OTHERS</option>
+                    {COMPLAINT_CATEGORIES.map((category) => (
+                      <option key={category.value} value={category.value}>{category.label}</option>
+                    ))}
                   </select>
                 </div>
 

@@ -5,6 +5,7 @@ import { hashPassword } from "../utils/bcrypt.ts";
 import { successResponse, errorResponse } from "../utils/apiResponse.ts";
 import { AuthenticatedRequest } from "../middleware/auth.ts";
 import { sendNotification } from "../services/notification.service.ts";
+import { CATEGORY_VALUES } from "../lib/complaintOptions.ts";
 
 export async function manageListAllComplaints(req: AuthenticatedRequest, res: Response) {
   try {
@@ -95,7 +96,7 @@ export async function assignOfficer(req: AuthenticatedRequest, res: Response) {
         where: { id },
         data: {
           assignedOfficerId: officerId,
-          status: "PENDING",
+          status: "ASSIGNED",
         },
       });
 
@@ -120,7 +121,7 @@ export async function assignOfficer(req: AuthenticatedRequest, res: Response) {
       await tx.statusUpdate.create({
         data: {
           complaintId: id,
-          status: "PENDING",
+          status: "ASSIGNED",
           note: `Re-assigned manually by District Administrator to ${targetOfficer.name} of category department: ${targetOfficer.officerProfile!.department}.`,
           updatedById: req.user!.userId,
         },
@@ -256,9 +257,10 @@ export async function manageCreateOfficer(req: AuthenticatedRequest, res: Respon
 
 export async function getAnalyticsSummary(req: AuthenticatedRequest, res: Response) {
   try {
-    const [total, open, resolved, closed, inProgress, escalated] = await prisma.$transaction([
+    const [total, open, assigned, resolved, closed, inProgress, escalated] = await prisma.$transaction([
       prisma.complaint.count(),
       prisma.complaint.count({ where: { status: "OPEN" } }),
+      prisma.complaint.count({ where: { status: "ASSIGNED" } }),
       prisma.complaint.count({ where: { status: "RESOLVED" } }),
       prisma.complaint.count({ where: { status: "CLOSED" } }),
       prisma.complaint.count({ where: { status: "IN_PROGRESS" } }),
@@ -289,12 +291,18 @@ export async function getAnalyticsSummary(req: AuthenticatedRequest, res: Respon
     }
 
     return successResponse(res, {
-      total,
-      open,
-      resolved: resolved + closed,
-      inProgress,
-      escalated,
-      avgResolutionHours,
+      totals: {
+        all: total,
+        open,
+        pending: open,
+        assigned,
+        in_progress: inProgress,
+        resolved,
+        closed,
+        escalated,
+      },
+      resolutionSpeedAvgHours: avgResolutionHours,
+      escalationRate: total > 0 ? Math.round((escalated / total) * 100) : 0,
     });
   } catch (err: any) {
     return errorResponse(res, err.message || "Failed to compile aggregate analytics", 500);
@@ -333,10 +341,9 @@ export async function getAnalyticsTrends(req: AuthenticatedRequest, res: Respons
 
 export async function getAnalyticsByDepartment(req: AuthenticatedRequest, res: Response) {
   try {
-    const categoriesList = ["ROADS", "SANITATION", "WATER", "ELECTRICITY", "HEALTH", "TELECOM", "SAFETY", "OTHER"];
     const breakdown = [];
 
-    for (const cat of categoriesList) {
+    for (const cat of CATEGORY_VALUES) {
       const count = await prisma.complaint.count({
         where: { category: cat },
       });

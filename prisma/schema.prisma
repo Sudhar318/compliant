@@ -37,6 +37,7 @@ model Complaint {
   title                     String
   description               String
   category                  String           // "ROADS" | "SANITATION" | "WATER" | "ELECTRICITY" | "HEALTH" | "TELECOM" | "SAFETY" | "OTHER"
+  subcategory               String?
   priority                  String           // "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"
   status                    String           @default("OPEN") // "OPEN" | "PENDING" | "IN_PROGRESS" | "RESOLVED" | "CLOSED" | "ESCALATED"
   sentiment                 String?          // Gemini

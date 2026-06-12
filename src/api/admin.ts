@@ -1,8 +1,19 @@
 import { apiClient } from "./client.ts";
-import { Complaint, Officer, User } from "@prisma/client";
+import { Complaint, User } from "@prisma/client";
 
-export interface OfficerWithUser extends Officer {
-  user: {
+export interface OfficerWithUser {
+  id?: string;
+  officerId?: string;
+  userId: string;
+  name?: string;
+  phone?: string;
+  email?: string | null;
+  department: string;
+  ward: string;
+  district: string;
+  activeAssignments: number;
+  resolvedCount: number;
+  user?: {
     name: string;
     phone: string;
     email: string | null;
@@ -14,6 +25,7 @@ export interface AdminSummary {
     all: number;
     open: number;
     pending: number;
+    assigned: number;
     in_progress: number;
     resolved: number;
     closed: number;
@@ -59,12 +71,13 @@ export async function listComplaints(params: {
 }
 
 export async function listOfficers(): Promise<OfficerWithUser[]> {
-  return apiClient("/api/admin/officers", {
+  const response = await apiClient("/api/admin/officers", {
     method: "GET",
   });
+  return response.officers || response;
 }
 
-export async function assignComplaint(complaintId: string, officerId: string): Promise<Complaint> {
+export async function assignComplaint(complaintId: string, officerId: string): Promise<{ assignedOfficerId: string }> {
   return apiClient(`/api/admin/complaints/${complaintId}/assign`, {
     method: "PATCH",
     body: JSON.stringify({ officerId }),
@@ -72,10 +85,11 @@ export async function assignComplaint(complaintId: string, officerId: string): P
 }
 
 export async function registerOfficer(data: any): Promise<User> {
-  return apiClient("/api/admin/officers", {
+  const response = await apiClient("/api/admin/officers", {
     method: "POST",
     body: JSON.stringify(data),
   });
+  return response.officer || response;
 }
 
 export async function getSummary(): Promise<AdminSummary> {
@@ -85,19 +99,22 @@ export async function getSummary(): Promise<AdminSummary> {
 }
 
 export async function getTrends(): Promise<AdminTrend[]> {
-  return apiClient("/api/admin/analytics/trends", {
+  const response = await apiClient("/api/admin/analytics/trends", {
     method: "GET",
   });
+  return response.trends || response;
 }
 
 export async function getByDept(): Promise<AdminByDept[]> {
-  return apiClient("/api/admin/analytics/by-department", {
+  const response = await apiClient("/api/admin/analytics/by-department", {
     method: "GET",
   });
+  return response.departments || response;
 }
 
 export async function getByWard(): Promise<AdminByWard[]> {
-  return apiClient("/api/admin/analytics/by-ward", {
+  const response = await apiClient("/api/admin/analytics/by-ward", {
     method: "GET",
   });
+  return response.wards || response;
 }

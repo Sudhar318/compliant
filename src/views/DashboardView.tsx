@@ -4,6 +4,7 @@ import { listComplaints } from "../api/complaints.ts";
 import { listNotifications } from "../api/notifications.ts";
 import { Bell, ClipboardList, Clock, CheckCircle2, Activity, Database, Smartphone, ShieldCheck } from "lucide-react";
 import { cn } from "../lib/utils.ts";
+import { getStatusLabel, getSubcategoryLabel } from "../lib/complaintOptions.ts";
 
 interface DashboardViewProps {
   onNavigate: (v: any) => void;
@@ -28,7 +29,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       const complaints = complaintsRes.complaints || [];
 
       const total = complaints.length;
-      const pending = complaints.filter(c => ["PENDING", "ASSIGNED", "IN_PROGRESS"].includes(c.status)).length;
+      const pending = complaints.filter(c => ["OPEN", "PENDING", "ASSIGNED", "IN_PROGRESS"].includes(c.status)).length;
       const resolved = complaints.filter(c => ["RESOLVED", "CLOSED"].includes(c.status)).length;
 
       setStats({ pending, resolved, total });
@@ -44,7 +45,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         return {
           id: item.id,
           title: item.title,
-          desc: `Case #${item.trackingId} status: ${item.status}`,
+          desc: `${getSubcategoryLabel(item.subcategory)} • ${getStatusLabel(item.status)} • #${item.trackingId}`,
           time: new Date(item.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           color: isResolved ? 'emerald' : 'orange',
           icon: isResolved ? CheckCircle2 : Clock
@@ -176,8 +177,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 px-1">Departments Directory</h3>
           <div className="grid grid-cols-4 gap-4">
             {[
-              { icon: Activity, label: 'Health', color: 'bg-red-50 text-red-500', cat: 'SANITATION' },
-              { icon: Database, label: 'Water', color: 'bg-blue-50 text-blue-500', cat: 'WATER_SUPPLY' },
+              { icon: Activity, label: 'Health', color: 'bg-red-50 text-red-500', cat: 'HEALTH' },
+              { icon: Database, label: 'Water', color: 'bg-blue-50 text-blue-500', cat: 'WATER' },
               { icon: Smartphone, label: 'Roads', color: 'bg-purple-50 text-purple-500', cat: 'ROADS' },
               { icon: ShieldCheck, label: 'Electricity', color: 'bg-emerald-50 text-emerald-500', cat: 'ELECTRICITY' }
             ].map((dept, idx) => {

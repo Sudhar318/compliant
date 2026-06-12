@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ComplaintStep1Schema } from "../lib/validation.ts";
 import { ChevronLeft, ArrowRight, Sparkles } from "lucide-react";
 import { z } from "zod";
+import { COMPLAINT_CATEGORIES, SUBCATEGORY_OPTIONS, ComplaintCategory } from "../lib/complaintOptions.ts";
 
 type Step1Inputs = z.infer<typeof ComplaintStep1Schema>;
 
@@ -21,6 +22,8 @@ export const FileComplaintStep1: React.FC<Step1Props> = ({
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors }
   } = useForm<Step1Inputs>({
     resolver: zodResolver(ComplaintStep1Schema),
@@ -28,9 +31,20 @@ export const FileComplaintStep1: React.FC<Step1Props> = ({
       title: initialValues.title || "",
       description: initialValues.description || "",
       category: initialValues.category || "ROADS",
+      subcategory: initialValues.subcategory || "POTHOLE",
       priority: initialValues.priority || "MEDIUM"
     }
   });
+
+  const selectedCategory = watch("category") as ComplaintCategory;
+  const selectedSubcategory = watch("subcategory");
+  const subcategoryOptions = SUBCATEGORY_OPTIONS[selectedCategory] || SUBCATEGORY_OPTIONS.ROADS;
+
+  useEffect(() => {
+    if (!subcategoryOptions.some((item) => item.value === selectedSubcategory)) {
+      setValue("subcategory", subcategoryOptions[0].value);
+    }
+  }, [selectedCategory, selectedSubcategory, setValue, subcategoryOptions]);
 
   const onSubmit = (data: Step1Inputs) => {
     onSuccess(data);
@@ -90,19 +104,36 @@ export const FileComplaintStep1: React.FC<Step1Props> = ({
 
         {/* Category Selection */}
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1">Category Select</label>
+          <label className="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1">Department Select</label>
           <select
             className="w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-base font-semibold outline-none transition-all focus:ring-2 focus:ring-emerald-500"
             {...register("category")}
           >
-            <option value="ROADS">Roads & Footpaths</option>
-            <option value="SANITATION">Sanitation & Garbage</option>
-            <option value="WATER_SUPPLY">Water Supply</option>
-            <option value="ELECTRICITY">Electricity & Power Danger</option>
-            <option value="OTHERS">Others / Misc</option>
+            {COMPLAINT_CATEGORIES.map((category) => (
+              <option key={category.value} value={category.value}>{category.label}</option>
+            ))}
           </select>
           {errors.category && (
             <p className="text-xs text-red-500 font-medium pl-1 animate-fadeIn">{errors.category.message}</p>
+          )}
+        </div>
+
+        {/* Related Subcategory Selection */}
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1">Related Subcategory</label>
+          <select
+            className="w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-base font-semibold outline-none transition-all focus:ring-2 focus:ring-emerald-500"
+            {...register("subcategory")}
+          >
+            {subcategoryOptions.map((subcategory) => (
+              <option key={subcategory.value} value={subcategory.value}>{subcategory.label}</option>
+            ))}
+          </select>
+          <p className="text-[10px] text-gray-400 font-semibold pl-1">
+            {COMPLAINT_CATEGORIES.find((category) => category.value === selectedCategory)?.description}
+          </p>
+          {errors.subcategory && (
+            <p className="text-xs text-red-500 font-medium pl-1 animate-fadeIn">{errors.subcategory.message}</p>
           )}
         </div>
 

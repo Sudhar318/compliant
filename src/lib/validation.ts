@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CATEGORY_VALUES, SUBCATEGORY_VALUES } from "./complaintOptions.ts";
 
 export const LoginSchema = z.object({
   identifier: z.string().min(1, "Phone or Email is required"),
@@ -17,7 +18,8 @@ export const RegisterSchema = z.object({
 export const ComplaintStep1Schema = z.object({
   title: z.string().min(10, "Title must be at least 10 characters"),
   description: z.string().min(20, "Description must be at least 20 characters"),
-  category: z.enum(["ROADS", "SANITATION", "WATER_SUPPLY", "ELECTRICITY", "OTHERS"]),
+  category: z.enum(CATEGORY_VALUES),
+  subcategory: z.enum(SUBCATEGORY_VALUES),
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"])
 });
 

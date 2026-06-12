@@ -18,6 +18,7 @@ type LocalComplaint = {
   title: string;
   description: string;
   category: string;
+  subcategory?: string | null;
   priority: string;
   status: string;
   address: string | null;
@@ -253,8 +254,9 @@ export async function handleLocalNativeRequest(endpoint: string, options: Reques
       title: body.title,
       description: body.description,
       category: body.category,
+      subcategory: body.subcategory || null,
       priority: body.priority,
-      status: "PENDING",
+      status: "OPEN",
       address: body.address || null,
       latitude: body.latitude,
       longitude: body.longitude,
@@ -264,7 +266,7 @@ export async function handleLocalNativeRequest(endpoint: string, options: Reques
       media: [],
       statusUpdates: [{
         id: `local-status-${Date.now()}`,
-        status: "PENDING",
+        status: "OPEN",
         note: "Complaint created locally on this device.",
         createdAt: now,
         updatedBy: { name: "SmartTrack Demo", role: "SYSTEM" },

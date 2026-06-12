@@ -16,8 +16,9 @@ export class ApiError extends Error {
 
 const BASE_URL = ((import.meta as any).env.VITE_API_URL || "").replace(/\/$/, "");
 
-function isLocalNativeMode() {
-  return !BASE_URL && Capacitor.isNativePlatform();
+function isStaticDemoMode() {
+  const isGitHubPages = typeof window !== "undefined" && window.location.hostname.endsWith("github.io");
+  return !BASE_URL && (Capacitor.isNativePlatform() || isGitHubPages);
 }
 
 function getApiUrl(endpoint: string) {
@@ -76,7 +77,7 @@ export async function apiClient(
   options: RequestInit = {},
   isRetry = false
 ): Promise<any> {
-  if (isLocalNativeMode()) {
+  if (isStaticDemoMode()) {
     const { handleLocalNativeRequest } = await import("./localNativeApi.ts");
     return handleLocalNativeRequest(endpoint, options);
   }

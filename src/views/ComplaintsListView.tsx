@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { listComplaints } from "../api/complaints.ts";
 import { Search, ChevronLeft, Menu, Clock, CheckCircle2, MessageSquare, ShieldCheck, ChevronRight } from "lucide-react";
 import { cn } from "../lib/utils.ts";
+import { getCategoryLabel, getStatusLabel, getSubcategoryLabel } from "../lib/complaintOptions.ts";
 
 interface ComplaintsListViewProps {
   onNavigate: (v: any) => void;
@@ -38,8 +39,8 @@ export const ComplaintsListView: React.FC<ComplaintsListViewProps> = ({
       setLoading(true);
       // Map filter selection to API params
       let apiStatus = undefined;
-      if (filterStatus === "PENDING") apiStatus = "PENDING";
-      else if (filterStatus === "IN_PROGRESS") apiStatus = "IN_PROGRESS"; // Or we handle server status mapping inside
+      if (filterStatus === "ASSIGNED") apiStatus = "ASSIGNED";
+      else if (filterStatus === "IN_PROGRESS") apiStatus = "IN_PROGRESS";
       else if (filterStatus === "RESOLVED") apiStatus = "RESOLVED";
 
       const res = await listComplaints({
@@ -51,10 +52,12 @@ export const ComplaintsListView: React.FC<ComplaintsListViewProps> = ({
 
       // Filter locally for status if backend status needs special handling
       let list = res.complaints || [];
-      if (filterStatus === "PENDING") {
-        list = list.filter((c: any) => c.status === "PENDING");
+      if (filterStatus === "OPEN") {
+        list = list.filter((c: any) => ["OPEN", "PENDING"].includes(c.status));
+      } else if (filterStatus === "ASSIGNED") {
+        list = list.filter((c: any) => c.status === "ASSIGNED");
       } else if (filterStatus === "IN_PROGRESS") {
-        list = list.filter((c: any) => ["ASSIGNED", "IN_PROGRESS"].includes(c.status));
+        list = list.filter((c: any) => c.status === "IN_PROGRESS");
       } else if (filterStatus === "RESOLVED") {
         list = list.filter((c: any) => ["RESOLVED", "CLOSED"].includes(c.status));
       }
@@ -100,9 +103,10 @@ export const ComplaintsListView: React.FC<ComplaintsListViewProps> = ({
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           {[
             { label: "All", id: "ALL" },
-            { label: "Pending", id: "PENDING" },
+            { label: "Open", id: "OPEN" },
+            { label: "Assigned", id: "ASSIGNED" },
             { label: "In Progress", id: "IN_PROGRESS" },
-            { label: "Resolved", id: "RESOLVED" }
+            { label: "Finished", id: "RESOLVED" }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -140,6 +144,7 @@ export const ComplaintsListView: React.FC<ComplaintsListViewProps> = ({
           <div className="space-y-4">
             {complaints.map((c) => {
               const statusColors: Record<string, string> = {
+                OPEN: "orange",
                 PENDING: "orange",
                 ASSIGNED: "blue",
                 IN_PROGRESS: "blue",
@@ -164,7 +169,7 @@ export const ComplaintsListView: React.FC<ComplaintsListViewProps> = ({
                         'bg-red-500': color === 'red',
                       })}></div>
                       <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
-                        {c.category} • #{c.trackingId}
+                        {getCategoryLabel(c.category)} • {getSubcategoryLabel(c.subcategory)} • #{c.trackingId}
                       </span>
                     </div>
                     <span className={cn("text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-wider", {
@@ -173,7 +178,7 @@ export const ComplaintsListView: React.FC<ComplaintsListViewProps> = ({
                       'bg-emerald-50 text-emerald-600': color === 'emerald',
                       'bg-red-50 text-red-600': color === 'red',
                     })}>
-                      {c.status}
+                      {getStatusLabel(c.status)}
                     </span>
                   </div>
 

@@ -83,6 +83,21 @@ VITE_API_URL="https://your-deployed-api.example.com" # Required for Capacitor/AP
 
 For production Android/Capacitor builds, `VITE_API_URL` must point to the deployed Node/Express backend that serves the `/api` routes. The APK only bundles the React frontend; it cannot run the Express server locally on the phone. If `VITE_API_URL` is omitted, the APK falls back to local demo storage so registration/login can be tested on-device without a deployed backend.
 
+### GitHub Pages Static Deployment
+This repository includes a GitHub Actions workflow at `.github/workflows/deploy-pages.yml`.
+
+1. Push changes to the `main` branch.
+2. In GitHub, open **Settings → Pages**.
+3. Set **Source** to **GitHub Actions**.
+4. The workflow builds the frontend with `npm run build:pages` and deploys `dist/`.
+
+The GitHub Pages URL for this repo will be:
+```text
+https://Sudhar318.github.io/compliant/
+```
+
+GitHub Pages is static hosting, so it cannot run the Node/Express API. Without `VITE_API_URL`, the Pages build uses local browser demo storage for registration, login, and complaint testing. For real shared data and admin monitoring, deploy the backend separately and set `VITE_API_URL` to that backend origin.
+
 ### 2. Install Workspace Dependencies
 ```bash
 npm install

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getComplaint, escalate, ComplaintDetail } from "../api/complaints.ts";
 import { ChevronLeft, Clock, CheckCircle2, ShieldCheck, MapPin, Sparkles, MessageSquare, AlertTriangle } from "lucide-react";
 import { cn } from "../lib/utils.ts";
+import { getCategoryLabel, getStatusLabel, getSubcategoryLabel } from "../lib/complaintOptions.ts";
 
 interface ComplaintDetailViewProps {
   complaintId: string;
@@ -96,7 +97,7 @@ export const ComplaintDetailView: React.FC<ComplaintDetailViewProps> = ({
           <h1 className="text-base font-black text-gray-900">Case ID: {complaint.trackingId}</h1>
         </div>
         <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-1 rounded-md font-bold uppercase tracking-wider">
-          {complaint.status}
+          {getStatusLabel(complaint.status)}
         </span>
       </div>
 
@@ -110,7 +111,10 @@ export const ComplaintDetailView: React.FC<ComplaintDetailViewProps> = ({
 
         <div className="flex gap-2 mb-4">
           <span className="bg-emerald-50 text-emerald-600 text-[10px] font-black px-2 py-1 rounded-md uppercase">
-            {complaint.category}
+            {getCategoryLabel(complaint.category)}
+          </span>
+          <span className="bg-blue-50 text-blue-600 text-[10px] font-black px-2 py-1 rounded-md uppercase">
+            {getSubcategoryLabel(complaint.subcategory)}
           </span>
           <span className="bg-red-50 text-red-600 text-[10px] font-black px-2 py-1 rounded-md uppercase">
             Priority: {complaint.priority}
@@ -209,7 +213,7 @@ export const ComplaintDetailView: React.FC<ComplaintDetailViewProps> = ({
                 <div className="grid grid-cols-2 gap-3 mt-1">
                   <div className="p-3 bg-slate-800/80 rounded-2xl border border-slate-700 shadow-sm text-left">
                     <p className="text-[9px] text-slate-400 font-black uppercase mb-0.5">Route Dept</p>
-                    <p className="text-xs font-black text-white">{complaint.category}</p>
+                    <p className="text-xs font-black text-white">{getCategoryLabel(complaint.category)}</p>
                   </div>
                   <div className="p-3 bg-slate-800/80 rounded-2xl border border-slate-700 shadow-sm text-left">
                     <p className="text-[9px] text-slate-400 font-black uppercase mb-0.5">Est. SLA</p>

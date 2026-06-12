@@ -25,6 +25,7 @@ export async function createComplaint(req: AuthenticatedRequest, res: Response) 
         title: validated.title,
         description: validated.description,
         category: validated.category,
+        subcategory: validated.subcategory || null,
         priority: validated.priority,
         status: "OPEN",
         latitude: validated.latitude || null,
@@ -55,6 +56,8 @@ export async function createComplaint(req: AuthenticatedRequest, res: Response) 
         id: complaint.id,
         trackingId: complaint.trackingId,
         title: complaint.title,
+        category: complaint.category,
+        subcategory: complaint.subcategory,
         status: complaint.status,
         createdAt: complaint.createdAt,
       },
@@ -163,7 +166,8 @@ export async function updateComplaintStatus(req: AuthenticatedRequest, res: Resp
       return errorResponse(res, "Unauthorized: You are not assigned to this complaint case", 403, "FORBIDDEN");
     }
 
-    const resolvedAt = validated.status === "RESOLVED" ? new Date() : complaint.resolvedAt;
+    const completedStatuses = ["RESOLVED", "CLOSED"];
+    const resolvedAt = completedStatuses.includes(validated.status) ? new Date() : complaint.resolvedAt;
 
     // Run within single transaction
     const [updatedComplaint] = await prisma.$transaction([
@@ -185,7 +189,7 @@ export async function updateComplaintStatus(req: AuthenticatedRequest, res: Resp
     ]);
 
     // If case has been resolved, update stats profile for officer
-    if (validated.status === "RESOLVED" && complaint.assignedOfficerId) {
+    if (completedStatuses.includes(validated.status) && !completedStatuses.includes(complaint.status) && complaint.assignedOfficerId) {
       await prisma.officer.updateMany({
         where: { userId: complaint.assignedOfficerId },
         data: {
